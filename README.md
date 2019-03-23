@@ -1,5 +1,5 @@
 # Very's Chess Interpreter
-convert an image of a chess.com game(in expanded mode) to FEN format using **openCV**.
+Convert an image of a chess.com game(in expanded mode) to FEN format using **openCV**. Takes a screenshot exactly 2 seconds after running and uses that image as the input.
 
 ## Failed attempt #1
 ;( 
