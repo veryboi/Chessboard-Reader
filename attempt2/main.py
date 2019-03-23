@@ -37,10 +37,12 @@ for x_i in range(8):
 
         #image, (x,y), coordinate,
 names = list("pnbrqk")
-board = [[1] * 8 for i in range(8) ]
+board = [["1"] * 8 for i in range(8) ]
 
 for my_im in images:
-    threshold = 0.75
+
+
+    threshold = 0.8
 
     right_piece = "1"
     done = False
@@ -65,8 +67,6 @@ for my_im in images:
                 board[my_im[1][1]][my_im[1][0]] = right_piece #fixed
                 done = True
                 break
-    if not done:
-        board[my_im[1][1]][my_im[1][0]] = "1"
 for i in range(9):
     cv.line(gray2, (int(x + unit*i), y), (int(x + unit*i), y+h), (255,0,0), 1)
 for i in range(9):
@@ -80,6 +80,7 @@ for i in range(8):
         fen[i][z] = str(fen[i][z])
     fen[i] = ''.join(fen[i])
 print('/'.join(fen) + ' w - - 0 1')
+print("ok")
 cv.imwrite('res.png',gray2)
 cv.imwrite('original.png',img)
 print(time.time() - start)
