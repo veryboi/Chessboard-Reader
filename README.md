@@ -1,5 +1,5 @@
 # Very's Chess Interpreter
-convert an image of a chess.com game(in expanded mode) to FEN format using **computer vision**.
+convert an image of a chess.com game(in expanded mode) to FEN format using **openCV**.
 
 ## Failed attempt #1
 ;( 
