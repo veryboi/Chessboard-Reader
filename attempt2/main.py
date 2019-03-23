@@ -40,7 +40,7 @@ names = list("pnbrqk")
 board = [[1] * 8 for i in range(8) ]
 
 for my_im in images:
-    threshold = 0.8
+    threshold = 0.75
 
     right_piece = "1"
     done = False
