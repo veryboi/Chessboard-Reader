@@ -4,6 +4,7 @@ import cv2 as cv
 import pathlib
 import time
 import itertools
+import operator
 time.sleep(2)
 white = [210,238,238] # BGR
 black = "[86 150 118]" # BGR
@@ -30,8 +31,10 @@ images = []
 for x_i in range(8):
     for y_i in range(8):
 
-        my_image = gray2[  int(bottoml[1] + y_i * unit) : int(bottoml[1] + unit * (y_i+ 1)+2), int(bottoml[0] + x_i * unit) : int(bottoml[0] + unit * (x_i + 1)+2)  ]
+        my_image = gray2[  int(bottoml[1] + y_i * unit) : int(bottoml[1] + unit * (y_i+ 1) + 2), int(bottoml[0] + x_i * unit) : int(bottoml[0] + unit * (x_i + 1) +2)  ]
         my_image = cv.cvtColor(my_image, cv.COLOR_BGR2GRAY)
+        kernel = np.ones((5, 5), np.float32) / 25
+        my_image = cv.filter2D(my_image, -1, kernel)
         cv.imwrite( str(pathlib.Path(__file__).parent / 'test_images' / ('piece_' + str(x_i*8 + y_i) +'.png') ), my_image)
         images.append((  my_image, (x_i, y_i), (len(my_image) , len(my_image[0]))  ))
 
@@ -40,33 +43,43 @@ names = list("pnbrqk")
 board = [["1"] * 8 for i in range(8) ]
 
 for my_im in images:
+    confidence = {
+        'p': 0,
+        'n': 0,
+        'b': 0,
+        'r': 0,
+        'q': 0,
+        'k': 0,
+        'P': 0,
+        'N': 0,
+        'B': 0,
+        'R': 0,
+        'Q': 0,
+        'K': 0
+    }
 
+    threshold = 0.5
 
-    threshold = 0.8
-
-    right_piece = "1"
+    #right_piece = "1"
     done = False
     for piece in names:
         template = cv.imread( (str(  pathlib.Path(__file__).parent / 'pieces' / 'black' /str(piece + ".png") )), 0)
         res = cv.matchTemplate(my_im[0], template, cv.TM_CCOEFF_NORMED)
+
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) > 0:
-            right_piece = piece
-            board[my_im[1][1]][my_im[1][0]] = right_piece
-            done = True
-            break
-    if not done:
-        for piece in names:
-            template = cv.imread((str(pathlib.Path(__file__).parent / 'pieces' / 'white' / str(piece + ".png"))), 0)
-            res = cv.matchTemplate(my_im[0], template, cv.TM_CCOEFF_NORMED)
-            loc = np.where(res >= threshold)
-            if len(list(zip(*loc[::-1]))) > 0:
-                # print(list(loc))
-                right_piece = piece.upper()
-                # print(my_im[1][0], my_im[1][1])
-                board[my_im[1][1]][my_im[1][0]] = right_piece #fixed
-                done = True
-                break
+            confidence[piece] = cv.minMaxLoc(res)[1]
+
+    for piece in names:
+        template = cv.imread((str(pathlib.Path(__file__).parent / 'pieces' / 'white' / str(piece + ".png"))), 0)
+        res = cv.matchTemplate(my_im[0], template, cv.TM_CCOEFF_NORMED)
+        loc = np.where(res >= threshold)
+        if len(list(zip(*loc[::-1]))) > 0:
+            confidence[piece.upper()] = cv.minMaxLoc(res)[1]
+    right_piece = max(confidence.items(), key=operator.itemgetter(1))
+    if right_piece[1] > threshold:
+        board[my_im[1][1]][my_im[1][0]] = right_piece[0] #fixed
+
 for i in range(9):
     cv.line(gray2, (int(x + unit*i), y), (int(x + unit*i), y+h), (255,0,0), 1)
 for i in range(9):
